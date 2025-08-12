@@ -1,0 +1,146 @@
+<turbo-frame id="transcripts-history">
+  <div class="w-full max-w-7xl mx-auto mt-16">
+    <!-- 历史记录标题 -->
+    <div class="text-center mb-8">
+      <h2 class="text-3xl font-bold text-gray-900 mb-2">
+        历史会议纪要
+      </h2>
+      <p class="text-gray-600">
+        查看之前生成的会议摘要和关键要点
+      </p>
+    </div>
+
+    <!-- 历史记录列表 -->
+    <div id="transcripts-history" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <% if @transcripts.any? %>
+        <div class="divide-y divide-gray-200">
+          <% @transcripts.each do |transcript| %>
+            <div class="p-6 hover:bg-gray-50 transition-colors duration-200">
+              <div class="flex items-start justify-between">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center space-x-3 mb-3">
+                    <div class="flex-shrink-0">
+                      <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                      </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium text-gray-900 truncate">
+                        会议纪要 #<%= transcript.uuid %>
+                      </p>
+                      <p class="text-sm text-gray-500">
+                        <%= transcript.created_at.strftime("%Y年%m月%d日 %H:%M") %>
+                      </p>
+                    </div>
+                    <div class="flex-shrink-0">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        <%= case transcript.status
+                            when 'initial'
+                              'bg-yellow-100 text-yellow-800'
+                            when 'done'
+                              'bg-green-100 text-green-800'
+                            when 'interrupted'
+                              'bg-red-100 text-red-800'
+                            else
+                              'bg-gray-100 text-gray-800'
+                            end %>">
+                        <%= case transcript.status
+                            when 'initial'
+                              '处理中'
+                            when 'done'
+                              '已完成'
+                            when 'interrupted'
+                              '已中断'
+                            else
+                              transcript.status
+                            end %>
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- 输入内容预览 -->
+                  <div class="mb-3">
+                    <p class="text-sm text-gray-600 line-clamp-2">
+                      <%= truncate(transcript.input, length: 200) %>
+                    </p>
+                  </div>
+
+                  <!-- 输出内容预览 -->
+                  <% if transcript.output.present? %>
+                    <div class="bg-gray-50 rounded-lg p-3 mb-3">
+                      <div class="prose prose-sm prose-gray max-w-none line-clamp-3">
+                        <%= truncate_markdown(transcript.output, length: 300) %>
+                      </div>
+                    </div>
+                  <% end %>
+
+                  <!-- 操作按钮 -->
+                  <div class="flex items-center space-x-3">
+                    <button data-controller="share"
+                            data-share-url-value="<%= share_transcript_url(transcript.uuid) %>"
+                            data-action="click->share#share"
+                            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                      <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
+                      </svg>
+                      分享
+                    </button>
+
+                    <%= link_to transcript_path(id: transcript.uuid), target: "_top",
+                        class: "inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200" do %>
+                      <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                      </svg>
+                      查看详情
+                    <% end %>
+
+                    <%= button_to transcript_path(id: transcript.uuid),
+                        method: :delete,
+                        class: "inline-flex items-center px-3 py-2 border border-red-300 shadow-sm text-sm leading-4 font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200",
+                        data: { turbo_confirm: "确定要删除这个会议纪要吗？" } do %>
+                      <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                      删除
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- 分页 -->
+        <% if @transcripts.total_pages > 1 %>
+          <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+            <div class="flex items-center justify-between">
+              <div class="text-sm text-gray-700">
+                显示第 <%= @transcripts.offset_value + 1 %> - <%= @transcripts.offset_value + @transcripts.length %> 条，
+                共 <%= @transcripts.total_count %> 条记录
+              </div>
+                          <div class="flex items-center space-x-2">
+                <%= paginate @transcripts, params: { turbo_frame: 'transcripts-history' } %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <!-- 空状态 -->
+        <div class="text-center py-12">
+          <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">暂无历史记录</h3>
+          <p class="text-gray-500 mb-6">
+            您还没有生成过会议纪要，开始创建您的第一个摘要吧！
+          </p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</turbo-frame>

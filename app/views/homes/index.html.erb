@@ -1,0 +1,137 @@
+<%= turbo_stream_from "transcript:#{@new_transcript.uuid}" %>
+<div class="w-full max-w-7xl mx-auto">
+  <!-- 页面标题 -->
+  <div class="text-center mb-12">
+    <h1 class="text-5xl font-bold text-gray-900 mb-4">
+      AI 会议纪要助手
+    </h1>
+    <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+      粘贴您的会议纪要，让 AI 为您生成结构化的摘要和关键要点
+    </p>
+  </div>
+
+  <!-- 主要内容区域 -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-[600px]">
+    <!-- 输入区域 -->
+    <div class="flex flex-col h-full">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-semibold text-gray-800 flex items-center">
+          <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+          </svg>
+          会议纪要输入
+        </h2>
+        <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+          必填
+        </span>
+      </div>
+
+      <div id="transcript-input" class="flex-1 flex flex-col">
+        <%= render "homes/input_forms/new", transcript: @new_transcript %>
+      </div>
+    </div>
+
+    <!-- 输出区域 -->
+    <div class="flex flex-col h-full">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-semibold text-gray-800 flex items-center">
+          <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+          </svg>
+          AI 智能摘要
+        </h2>
+        <span class="text-sm text-gray-500 bg-green-100 text-green-700 px-3 py-1 rounded-full">
+          实时生成
+        </span>
+      </div>
+
+      <div class="flex-1 bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-xl p-6 overflow-y-auto">
+        <div id="transcript-output" class="prose prose-gray max-w-none">
+          <!-- 初始状态 -->
+          <div class="flex flex-col items-center justify-center h-full text-center">
+            <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-700 mb-2">等待输入</h3>
+            <p class="text-gray-500 max-w-sm">
+              请在左侧输入框中粘贴会议纪要，AI 将为您生成结构化的摘要和关键要点
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 功能按钮 -->
+      <div class="mt-6 flex space-x-3">
+        <button
+          class="flex-1 bg-white border-2 border-gray-200 text-gray-700 font-medium py-3 px-4 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 flex items-center justify-center"
+          data-controller="copy-result"
+          data-action="click->copy-result#copyResult"
+          data-copy-result-target="button">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          </svg>
+          复制结果
+        </button>
+        <button
+          class="flex-1 bg-white border-2 border-gray-200 text-gray-700 font-medium py-3 px-4 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 flex items-center justify-center"
+          data-controller="share"
+          data-action="click->share#share"
+          data-share-url-value="<%= share_transcript_url(@new_transcript.uuid) %>">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
+          </svg>
+          分享
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部信息 -->
+  <div class="mt-20 text-center">
+    <div class="inline-flex items-center space-x-6 text-sm text-gray-500">
+      <div class="flex items-center">
+        <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+        <span>AI 实时处理</span>
+      </div>
+      <div class="flex items-center">
+        <div class="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+        <span>安全加密</span>
+      </div>
+      <div class="flex items-center">
+        <div class="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+        <span>多语言支持</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 历史记录部分 - 使用 Turbo Frame 延迟加载 -->
+  <turbo-frame id="transcripts-history" src="<%= transcripts_path %>" loading="lazy">
+    <!-- 加载状态 -->
+    <div class="w-full max-w-7xl mx-auto mt-20">
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">
+          历史会议纪要
+        </h2>
+        <p class="text-gray-600">
+          查看之前生成的会议摘要和关键要点
+        </p>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="text-center py-12">
+          <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-gray-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">正在加载历史记录...</h3>
+          <p class="text-gray-500">
+            请稍候，正在获取您的会议纪要历史
+          </p>
+        </div>
+      </div>
+    </div>
+  </turbo-frame>
+</div>

@@ -1,0 +1,25 @@
+<%= form_with(model: transcript, class: "flex-1 flex flex-col h-full", local: true) do |form| %>
+  <div class="flex-1 relative flex flex-col" data-controller="char-counter">
+    <%= form.text_area :input,
+        placeholder: "请在此粘贴您的会议纪要文本...\n\n例如：\n会议主题：产品开发讨论\n参会人员：张三、李四、王五\n会议时间：2024年1月15日 14:00-16:00\n\n讨论内容：\n1. 新功能开发计划\n2. 技术架构调整\n3. 项目时间安排",
+        class: "w-full flex-1 p-6 text-gray-700 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 resize-none",
+        rows: 20,
+        data: {
+          char_counter_target: "textarea",
+          action: "input->char-counter#updateCount"
+        } %>
+
+    <!-- 字符计数 -->
+    <div class="absolute bottom-4 right-4 text-xs text-gray-400 bg-white px-2 py-1 rounded">
+      <span data-char-counter-target="counter">0</span> 字符
+    </div>
+  </div>
+
+  <%= form.hidden_field :uuid %>
+
+  <div class="mt-6">
+    <%= form.submit "生成 AI 摘要",
+        class: "w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center",
+        data: { disable_with: "正在处理...", turbo_frame: "_self" } %>
+  </div>
+<% end %>
